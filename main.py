@@ -72,9 +72,7 @@ def wider_model():
 
 def custom_model():
     """
-    Creates a Keras model that is wider than the dimension of the feature space. 
-    The layers width are like this:
-    k -> 2*k -> k -> k -> 1.
+    Model with a L1 regularization term in the loss function for the dense layers to prevent overfitting.
     :return: Keras model.
     """
     # create model
