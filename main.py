@@ -18,7 +18,7 @@ from keras.layers import Dense
 from keras.regularizers import l1
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 
 from sklearn.model_selection import KFold, StratifiedKFold
 
@@ -79,8 +79,10 @@ def custom_model():
     """
     # create model
     model = Sequential()
-    model.add(Dense(2*X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
-    model.add(Dense(X_train.shape[1], input_dim=2*X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu', W_regularizer=l1(0.1)))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu', W_regularizer=l1(0.1)))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu',
+                    W_regularizer=l1(0.1)))
     model.add(Dense(1, kernel_initializer='normal'))
     # Compile model
     model.compile(loss='mean_squared_error', optimizer='adam')
@@ -149,18 +151,20 @@ if __name__ == '__main__':
     # Custom model
     model_4 = custom_model()
     hist4 = model_4.fit(X_tr, y_tr, validation_data=(X_val, y_val))
-    scores = model_4.evaluate(X_val, y_val, verbose=0)
+    scores = model_4.evaluate(X_val, y_val, verbose=1)
     print scores
 
     # Print MSE for each model
-    mse = mean_squared_error(model.predict(X_val)[:, 0], y_val)
-    print "Model 1 : ", mse
-    mse = mean_squared_error(model_2.predict(X_val)[:, 0], y_val)
-    print "Model 2 : ", mse
-    mse = mean_squared_error(model_3.predict(X_val)[:, 0], y_val)
-    print "Model 3 : ", mse
-    mse = mean_squared_error(model_4.predict(X_val)[:, 0], y_val)
-    print "Model 4 : ", mse
+    print "Model 1 MSE: ", mean_squared_error(model.predict(X_val)[:, 0], y_val)
+    print "Model 2 MSE: ", mean_squared_error(model_2.predict(X_val)[:, 0], y_val)
+    print "Model 3 MSE: ", mean_squared_error(model_3.predict(X_val)[:, 0], y_val)
+    print "Model 4 MSE: ", mean_squared_error(model_4.predict(X_val)[:, 0], y_val)
+
+    # Print R^2 for each model
+    print "Model 1 R^2: ", r2_score(model.predict(X_val)[:, 0], y_val)
+    print "Model 2 R^2: ", r2_score(model_2.predict(X_val)[:, 0], y_val)
+    print "Model 3 R^2: ", r2_score(model_3.predict(X_val)[:, 0], y_val)
+    print "Model 4 R^2: ", r2_score(model_4.predict(X_val)[:, 0], y_val)
 
     # Plot Results
     plt.figure()
